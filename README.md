@@ -19,4 +19,4 @@ This is a simple **CRUD API** built with **FastAPI** to manage student records. 
 ### 1️⃣ Clone or Download the Project
 
 ```bash
-cd your-project-directory
+cd "C:\Users\indur\OneDrive\Attachments\FEALTYX_PROJECT\student_api"
