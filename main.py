@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, EmailStr
 import httpx
 import threading
+import json
 
 app = FastAPI()
 
@@ -77,11 +78,17 @@ async def generate_summary(student_id: int):
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "http://localhost:11434/api/generate",
-            json={"model": "llama3", "prompt": prompt}
+            json={"model": "llama3", "prompt": prompt},
+            timeout=60.0
         )
 
-    if response.status_code != 200:
-        raise HTTPException(status_code=500, detail="Ollama API error")
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail="Ollama API error")
 
-    result = response.json()
-    return {"summary": result.get("response", "No summary generated")}
+        result = ""
+        async for chunk in response.aiter_lines():
+            if chunk.strip():
+                data = json.loads(chunk)
+                result += data.get("response", "")
+
+    return {"summary": result.strip()}
